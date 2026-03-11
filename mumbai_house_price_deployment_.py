@@ -12,7 +12,7 @@ import pandas as pd
 import joblib
 
 # load model and encoder
-model = joblib.load("Mumbai_house_price_prediction_rfr_model.pkl")
+model = joblib.load("Mumbai_house_price_prediction_rfr_model (2).pkl")
 encoder = joblib.load("label_encoder_price.pkl")
 
 st.title("House Price Prediction Model")
