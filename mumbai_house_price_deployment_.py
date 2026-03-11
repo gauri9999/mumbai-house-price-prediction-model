@@ -50,6 +50,7 @@ longitude = st.number_input("Longitude", format="%.6f")
 if st.button("Predict Price"):
 
     df = pd.DataFrame({
+        "title":[title],
         "area":[area],
         "price_per_sqft":[price_per_sqft],
         "locality":[locality],
