@@ -11,73 +11,64 @@ import streamlit as st
 import pandas as pd
 import joblib
 
-# load model and encoder
+# Load model and encoder
 model = joblib.load("Mumbai_house_price_prediction_rfr_model (2).pkl")
 encoder = joblib.load("label_encoder_price.pkl")
 
-st.title("House Price Prediction Model")
+st.title("Mumbai House Price Prediction")
 
-# numeric inputs
+# Inputs
+title = st.text_input("Enter Property Title")
+
 area = st.number_input("Enter Area (sqft)", 100, 10000)
+price_per_sqft = st.number_input("Price per sqft", 1000, 100000)
+
+locality = st.selectbox("Select Locality", encoder["locality"].classes_)
+city = st.selectbox("Select City", encoder["city"].classes_)
+property_type = st.selectbox("Select Property Type", encoder["property_type"].classes_)
+
 bedroom = st.number_input("Number of Bedrooms", 1, 10)
 bathroom = st.number_input("Number of Bathrooms", 1, 10)
 balcony = st.number_input("Number of Balconies", 0, 5)
-floors = st.number_input("Total Floors", 1, 50)
-age = st.number_input("Property Age", 0, 50)
 
-price_per_sqft = st.number_input("Price per sqft", 1000, 100000)
+furnished = st.selectbox("Furnished Status", encoder["furnished"].classes_)
+
+age = st.number_input("Property Age", 0, 50)
+floors = st.number_input("Total Floors", 1, 50)
 
 latitude = st.number_input("Latitude", format="%.6f")
 longitude = st.number_input("Longitude", format="%.6f")
 
-# categorical inputs
-city = st.selectbox("Select City", encoder["city"].classes_)
-property_type = st.selectbox("Select Property Type", encoder["property_type"].classes_)
-furnished = st.selectbox("Furnished Status", encoder["furnished"].classes_)
-
-# dataframe (same columns as training data)
+# Prediction
 if st.button("Predict Price"):
 
-    # dataframe create
     df = pd.DataFrame({
-        "area": [area],
-        "price_per_sqft": [price_per_sqft],
-        "city": [city],
-        "property_type": [property_type],
-        "bedroom_num": [bedroom],
-        "bathroom_num": [bathroom],
-        "balcony_num": [balcony],
-        "furnished": [furnished],
-        "age": [age],
-        "total_floors": [floors],
-        "latitude": [latitude],
-        "longitude": [longitude]
+        "title":[title],
+        "area":[area],
+        "price_per_sqft":[price_per_sqft],
+        "locality":[locality],
+        "city":[city],
+        "property_type":[property_type],
+        "bedroom_num":[bedroom],
+        "bathroom_num":[bathroom],
+        "balcony_num":[balcony],
+        "furnished":[furnished],
+        "age":[age],
+        "total_floors":[floors],
+        "latitude":[latitude],
+        "longitude":[longitude]
     })
 
-    # apply label encoding
+    # Encoding categorical columns
     for col in encoder:
         if col in df.columns:
             df[col] = encoder[col].transform(df[col])
 
-    # feature order same as training
-    model_features = [
-        "area",
-        "price_per_sqft",
-        "city",
-        "property_type",
-        "bedroom_num",
-        "bathroom_num",
-        "balcony_num",
-        "furnished",
-        "age",
-        "total_floors",
-        "latitude",
-        "longitude"
-    ]
-
-    df = df[model_features]
+    # Match feature order with training
+    df = df[model.feature_names_in_]
 
     prediction = model.predict(df)
 
-    st.success(f"Predicted House Price: {prediction[0]}")
+    st.success(f"Predicted House Price: ₹ {prediction[0]:,.2f}")
+    
     
