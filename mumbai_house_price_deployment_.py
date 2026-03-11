@@ -16,42 +16,40 @@ model = joblib.load("Mumbai_house_price_prediction_rfr_model (2).pkl")
 encoder = joblib.load("label_encoder_price.pkl")
 
 st.title("Mumbai House Price Prediction")
+st.write("Enter property details to estimate the price")
 
-st.write("Enter property details to predict house price")
+# User Inputs
+area = st.number_input("Area (sqft)", min_value=100, max_value=10000, value=500)
 
-# Inputs
+price_per_sqft = st.number_input("Price per sqft", min_value=1000, max_value=100000, value=5000)
 
-area = st.number_input("Enter Area (sqft)", min_value=100, max_value=10000)
+locality = st.selectbox("Locality", encoder["locality"].classes_)
 
-price_per_sqft = st.number_input("Price per sqft", min_value=1000, max_value=100000)
+city = st.selectbox("City", encoder["city"].classes_)
 
-locality = st.selectbox("Select Locality", encoder["locality"].classes_)
+property_type = st.selectbox("Property Type", encoder["property_type"].classes_)
 
-city = st.selectbox("Select City", encoder["city"].classes_)
+bedroom = st.number_input("Bedrooms", min_value=1, max_value=10, value=2)
 
-property_type = st.selectbox("Select Property Type", encoder["property_type"].classes_)
+bathroom = st.number_input("Bathrooms", min_value=1, max_value=10, value=2)
 
-bedroom = st.number_input("Number of Bedrooms", min_value=1, max_value=10)
+balcony = st.number_input("Balconies", min_value=0, max_value=5, value=1)
 
-bathroom = st.number_input("Number of Bathrooms", min_value=1, max_value=10)
+furnished = st.selectbox("Furnished", encoder["furnished"].classes_)
 
-balcony = st.number_input("Number of Balconies", min_value=0, max_value=5)
+age = st.number_input("Property Age", min_value=0, max_value=50, value=5)
 
-furnished = st.selectbox("Furnished Status", encoder["furnished"].classes_)
+floors = st.number_input("Total Floors", min_value=1, max_value=50, value=10)
 
-age = st.number_input("Property Age", min_value=0, max_value=50)
+latitude = st.number_input("Latitude", format="%.6f", value=19.0760)
 
-floors = st.number_input("Total Floors", min_value=1, max_value=50)
+longitude = st.number_input("Longitude", format="%.6f", value=72.8777)
 
-latitude = st.number_input("Latitude", format="%.6f")
-
-longitude = st.number_input("Longitude", format="%.6f")
-
-# Prediction
+# Prediction Button
 if st.button("Predict Price"):
 
+    # Create dataframe
     df = pd.DataFrame({
-
         "area":[area],
         "price_per_sqft":[price_per_sqft],
         "locality":[locality],
@@ -67,14 +65,17 @@ if st.button("Predict Price"):
         "longitude":[longitude]
     })
 
-    # Encode categorical columns safely
-    for col in encoder:
-        if col in df.columns:
-            df[col] = encoder[col].transform(df[col])
+    # Encode categorical columns
+    categorical_cols = ["locality","city","property_type","furnished"]
 
-    # Arrange columns same as training
-    df = df.reindex(columns=model.feature_names_in_, fill_value=0)
+    for col in categorical_cols:
+        df[col] = encoder[col].transform(df[col])
 
+    # Show input data for debugging
+    st.write("Input Data Sent to Model:")
+    st.write(df)
+
+    # Predict
     prediction = model.predict(df)
 
     st.success(f"Predicted House Price: ₹ {prediction[0]:,.2f}")
