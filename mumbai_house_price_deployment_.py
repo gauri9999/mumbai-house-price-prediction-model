@@ -17,33 +17,39 @@ encoder = joblib.load("label_encoder_price.pkl")
 
 st.title("Mumbai House Price Prediction")
 
-# Inputs
-title = st.text_input("Enter Property Title")
+st.write("Enter property details to predict house price")
 
-area = st.number_input("Enter Area (sqft)", 100, 10000)
-price_per_sqft = st.number_input("Price per sqft", 1000, 100000)
+# Inputs
+area = st.number_input("Enter Area (sqft)", min_value=100, max_value=10000)
+
+price_per_sqft = st.number_input("Price per sqft", min_value=1000, max_value=100000)
 
 locality = st.selectbox("Select Locality", encoder["locality"].classes_)
+
 city = st.selectbox("Select City", encoder["city"].classes_)
+
 property_type = st.selectbox("Select Property Type", encoder["property_type"].classes_)
 
-bedroom = st.number_input("Number of Bedrooms", 1, 10)
-bathroom = st.number_input("Number of Bathrooms", 1, 10)
-balcony = st.number_input("Number of Balconies", 0, 5)
+bedroom = st.number_input("Number of Bedrooms", min_value=1, max_value=10)
+
+bathroom = st.number_input("Number of Bathrooms", min_value=1, max_value=10)
+
+balcony = st.number_input("Number of Balconies", min_value=0, max_value=5)
 
 furnished = st.selectbox("Furnished Status", encoder["furnished"].classes_)
 
-age = st.number_input("Property Age", 0, 50)
-floors = st.number_input("Total Floors", 1, 50)
+age = st.number_input("Property Age", min_value=0, max_value=50)
+
+floors = st.number_input("Total Floors", min_value=1, max_value=50)
 
 latitude = st.number_input("Latitude", format="%.6f")
+
 longitude = st.number_input("Longitude", format="%.6f")
 
 # Prediction
 if st.button("Predict Price"):
 
     df = pd.DataFrame({
-        "title":[title],
         "area":[area],
         "price_per_sqft":[price_per_sqft],
         "locality":[locality],
@@ -59,13 +65,12 @@ if st.button("Predict Price"):
         "longitude":[longitude]
     })
 
-    # Encoding categorical columns
-if st.button("predict price"):
-  for col in encoder:
-    df[col] = encoder[col].transform(df[col])
-    prediction = model.predict(df)
+    # Encode categorical columns safely
+    for col in encoder:
+        if col in df.columns:
+            df[col] = encoder[col].transform(df[col])
 
-    # Match feature order with training
+    # Arrange columns same as training
     df = df[model.feature_names_in_]
 
     prediction = model.predict(df)
