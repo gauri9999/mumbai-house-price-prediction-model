@@ -20,7 +20,7 @@ st.title("Mumbai House Price Prediction")
 st.write("Enter property details to predict house price")
 
 # Inputs
-title = st.text_input("Enter Property Title")
+
 area = st.number_input("Enter Area (sqft)", min_value=100, max_value=10000)
 
 price_per_sqft = st.number_input("Price per sqft", min_value=1000, max_value=100000)
@@ -51,7 +51,7 @@ longitude = st.number_input("Longitude", format="%.6f")
 if st.button("Predict Price"):
 
     df = pd.DataFrame({
-        "title":[title],
+
         "area":[area],
         "price_per_sqft":[price_per_sqft],
         "locality":[locality],
