@@ -36,29 +36,30 @@ property_type = st.selectbox("Select Property Type", encoder["property_type"].cl
 furnished = st.selectbox("Furnished Status", encoder["furnished"].classes_)
 
 # dataframe (same columns as training data)
-df = pd.DataFrame({
-    "area": [area],
-    "price_per_sqft": [price_per_sqft],
-    "city": [city],
-    "property_type": [property_type],
-    "bedroom_num": [bedroom],
-    "bathroom_num": [bathroom],
-    "balcony_num": [balcony],
-    "furnished": [furnished],
-    "age": [age],
-    "total_floors": [floors],
-    "latitude": [latitude],
-    "longitude": [longitude]
-})
-
-# prediction button
 if st.button("Predict Price"):
 
-    # apply label encoding
     for col in encoder:
         if col in df.columns:
             df[col] = encoder[col].transform(df[col])
 
+    model_features = [
+        "area",
+        "price_per_sqft",
+        "city",
+        "property_type",
+        "bedroom_num",
+        "bathroom_num",
+        "balcony_num",
+        "furnished",
+        "age",
+        "total_floors",
+        "latitude",
+        "longitude"
+    ]
+
+    df = df[model_features]
+
     prediction = model.predict(df)
 
     st.success(f"Predicted House Price: {prediction[0]}")
+
