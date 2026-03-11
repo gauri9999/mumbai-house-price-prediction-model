@@ -16,36 +16,28 @@ model = joblib.load("Mumbai_house_price_prediction_rfr_model (2).pkl")
 encoder = joblib.load("label_encoder_price.pkl")
 
 st.title("Mumbai House Price Prediction")
-st.write("Enter property details to estimate the price")
+st.write("Enter property details to estimate price")
 
-# User Inputs
-area = st.number_input("Area (sqft)", min_value=100, max_value=10000, value=500)
-
-price_per_sqft = st.number_input("Price per sqft", min_value=1000, max_value=100000, value=5000)
+# Inputs
+area = st.number_input("Area (sqft)", 100, 10000, 500)
+price_per_sqft = st.number_input("Price per sqft", 1000, 100000, 5000)
 
 locality = st.selectbox("Locality", encoder["locality"].classes_)
-
 city = st.selectbox("City", encoder["city"].classes_)
-
 property_type = st.selectbox("Property Type", encoder["property_type"].classes_)
 
-bedroom = st.number_input("Bedrooms", min_value=1, max_value=10, value=2)
-
-bathroom = st.number_input("Bathrooms", min_value=1, max_value=10, value=2)
-
-balcony = st.number_input("Balconies", min_value=0, max_value=5, value=1)
+bedroom = st.number_input("Bedrooms", 1, 10, 2)
+bathroom = st.number_input("Bathrooms", 1, 10, 2)
+balcony = st.number_input("Balconies", 0, 5, 1)
 
 furnished = st.selectbox("Furnished", encoder["furnished"].classes_)
 
-age = st.number_input("Property Age", min_value=0, max_value=50, value=5)
-
-floors = st.number_input("Total Floors", min_value=1, max_value=50, value=10)
+age = st.number_input("Property Age", 0, 50, 5)
+floors = st.number_input("Total Floors", 1, 50, 10)
 
 latitude = st.number_input("Latitude", format="%.6f", value=19.0760)
-
 longitude = st.number_input("Longitude", format="%.6f", value=72.8777)
 
-# Prediction Button
 if st.button("Predict Price"):
 
     # Create dataframe
@@ -66,16 +58,17 @@ if st.button("Predict Price"):
     })
 
     # Encode categorical columns
-    categorical_cols = ["locality","city","property_type","furnished"]
-
-    for col in categorical_cols:
+    for col in ["locality","city","property_type","furnished"]:
         df[col] = encoder[col].transform(df[col])
 
-    # Show input data for debugging
-    st.write("Input Data Sent to Model:")
+    # Match feature names exactly as training
+    df = df.reindex(columns=model.feature_names_in_, fill_value=0)
+
+    # Debug check
+    st.write("Input to Model:")
     st.write(df)
 
-    # Predict
+    # Prediction
     prediction = model.predict(df)
 
     st.success(f"Predicted House Price: ₹ {prediction[0]:,.2f}")
