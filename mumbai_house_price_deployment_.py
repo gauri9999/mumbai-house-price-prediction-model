@@ -71,7 +71,7 @@ if st.button("Predict Price"):
             df[col] = encoder[col].transform(df[col])
 
     # Arrange columns same as training
-    df = df[model.feature_names_in_]
+    df = df.reindex(columns=model.feature_names_in_, fill_value=0)
 
     prediction = model.predict(df)
 
