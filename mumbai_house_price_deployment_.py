@@ -60,8 +60,10 @@ if st.button("Predict Price"):
     })
 
     # Encoding categorical columns
-    for col in encoder:
+# Encoding categorical columns
+ for col in encoder:
     if col in df.columns and col != "title":
+        df[col] = df[col].apply(lambda x: x if x in encoder[col].classes_ else encoder[col].classes_[0])
         df[col] = encoder[col].transform(df[col])
 
     # Match feature order with training
